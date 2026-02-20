@@ -1,0 +1,164 @@
+unit Unit2;
+
+interface
+
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.Menus,
+  Vcl.StdCtrls;
+
+type
+  TForm2 = class(TForm)
+    OrEd: TEdit;
+    KeyFirstEd: TEdit;
+    ResEd: TEdit;
+    Button1: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    Button2: TButton;
+    procedure Button1Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function EncVigenere(Original, Key: String): String;
+    function DecVigenere(Original, Key: String): String;
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+
+{$R *.dfm}
+
+
+procedure TForm2.Button1Click(Sender: TObject);
+begin
+  ResEd.Text := EncVigenere(OrEd.Text, KeyFirstEd.Text);
+end;
+
+function TForm2.EncVigenere(Original, Key: String): String;
+const
+  RussianAlphabet: String = '¿¡¬√ƒ≈®∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ';
+var
+  KeyLen, OrLen, I, J, CharOr, CharKey, CharNew, Count: Integer;
+  Check: Boolean;
+begin
+  Original := AnsiUpperCase(Original);
+  Key := AnsiUpperCase(Key);
+
+  Result := '';
+
+  KeyLen := Length(Key);
+  OrLen := Length(Original);
+
+  count := 0;
+
+  for i := Low(Key) to High(key) do
+    if Pos(Key[i], RussianAlphabet) <> 0 then
+      count := count + 1;
+
+  I := 1;
+  J := 1;
+
+  if count = 0 then
+    Result := Original
+  else
+    while I <= OrLen do
+    begin
+      if Pos(Original[I], RussianAlphabet) > 0 then
+      begin
+
+        if Pos(Key[J], RussianAlphabet) > 0 then
+        begin
+          CharOr := Pos(Original[I], RussianAlphabet) - 1;
+          CharKey := Pos(Key[J], RussianAlphabet) - 1;
+
+
+          CharNew := (CharOr + CharKey) mod 33 + 1;
+
+          Result := Result + RussianAlphabet[CharNew];
+        end
+        else
+          I := I - 1;;
+
+        J := (J mod KeyLen) + 1;
+      end
+      else
+        Result := Result + Original[I];
+
+      I := I + 1;
+    end;
+end;
+
+procedure TForm2.Button2Click(Sender: TObject);
+begin
+  ResEd.Text := DecVigenere(OrEd.Text, KeyFirstEd.Text);
+end;
+
+function TForm2.DecVigenere(Original, Key: String): String;
+const
+  RussianAlphabet: String = '¿¡¬√ƒ≈®∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ';
+var
+  KeyLen, OrLen, I, J, CharOr, CharKey, CharNew, Count: Integer;
+  Check: Boolean;
+begin
+  Original := AnsiUpperCase(Original);
+  Key := AnsiUpperCase(Key);
+
+  Result := '';
+
+  KeyLen := Length(Key);
+  OrLen := Length(Original);
+
+  count := 0;
+
+  for i := Low(Key) to High(key) do
+    if Pos(Key[i], RussianAlphabet) <> 0 then
+      count := count + 1;
+
+  I := 1;
+  J := 1;
+
+  if count = 0 then
+    Result := Original
+  else
+    while I <= OrLen do
+    begin
+      if Pos(Original[I], RussianAlphabet) > 0 then
+      begin
+
+        if Pos(Key[J], RussianAlphabet) > 0 then
+        begin
+          CharOr := Pos(Original[I], RussianAlphabet) - 1;
+          CharKey := Pos(Key[J], RussianAlphabet) - 1;
+
+
+          CharNew := (CharOr + 33 - CharKey) mod 33 + 1;
+
+          Result := Result + RussianAlphabet[CharNew];
+        end
+        else
+          I := I - 1;;
+
+        J := (J mod KeyLen) + 1;
+      end
+      else
+        Result := Result + Original[I];
+
+      I := I + 1;
+    end;
+end;
+
+end.

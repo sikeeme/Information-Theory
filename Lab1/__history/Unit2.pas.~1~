@@ -1,0 +1,105 @@
+unit Unit2;
+
+interface
+
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.Menus,
+  Vcl.StdCtrls;
+
+type
+  TForm2 = class(TForm)
+    OrEd: TEdit;
+    KeyEd: TEdit;
+    ResEd: TEdit;
+    Button1: TButton;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
+    procedure Button1Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    function Vigenere(Original, Key: String): String; //Функция возвращает результат
+    function Playfair(Original, Key: String): String;
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+
+{$R *.dfm}
+
+
+procedure TForm2.Button1Click(Sender: TObject);
+begin
+  ResEd.Text := Vigenere(OrEd.Text, KeyEd.Text);
+end;
+
+function TForm2.Playfair(Original, Key: String): String;
+begin
+
+end;
+
+function TForm2.Vigenere(Original, Key: String): String;
+const
+  RussianAlphabet: String = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ';
+var
+  KeyLen, OrLen, I, J, CharOr, CharKey, CharNew: Integer;
+begin
+  Original := AnsiUpperCase(Original);
+  Key := AnsiUpperCase(Key);
+
+  Result := '';
+
+  KeyLen := Length(Key);
+  OrLen := Length(Original);
+
+  I := 1;
+  J := 1;
+
+  while I <= OrLen do
+  begin
+    // Проверяем, что символ есть в русском алфавите
+    if Pos(Original[I], RussianAlphabet) > 0 then
+    begin
+      // Проверяем ключ
+      if Pos(Key[J], RussianAlphabet) > 0 then
+      begin
+        // Находим позиции в алфавите (1-33)
+        CharOr := Pos(Original[I], RussianAlphabet) - 1; // 0-32
+        CharKey := Pos(Key[J], RussianAlphabet) - 1;     // 0-32
+
+        // Шифр Виженера
+        CharNew := (CharOr + CharKey) mod 33 + 1; // 1-33
+
+        Result := Result + RussianAlphabet[CharNew];
+      end
+      else                              //
+        Result := Result + Original[I];   //
+
+      J := J + 1;
+      if J > KeyLen then
+        J := 1;
+    end
+    else                                                  //
+    begin                                               //
+      // Не русские буквы оставляем как есть          //
+      Result := Result + Original[I];               //
+    end;                                          //
+
+    I := I + 1;
+  end;
+end;
+
+end.

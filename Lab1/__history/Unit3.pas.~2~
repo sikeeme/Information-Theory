@@ -1,0 +1,167 @@
+Unit Unit3;
+
+Interface
+
+Uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.SysUtils,
+  System.Variants,
+  System.Classes,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.Dialogs,
+  Vcl.StdCtrls;
+
+Type
+  TPlayfairMatrix = Array [0 .. 4, 0 .. 4] Of Char;
+
+Type
+  TForm3 = Class(TForm)
+    OrEd: TEdit;
+    KeyFEd: TEdit;
+    KeySEd: TEdit;
+    ResEd: TEdit;
+    Button1: TButton;
+    Button2: TButton;
+    Label1: TLabel;
+    Procedure Button1Click(Sender: TObject);
+    Procedure Button2Click(Sender: TObject);
+  Private
+    { Private declarations }
+  Public
+    { Public declarations }
+    Function EncPlayfair(Original, KeyF, KeyS: String): String;
+    Function DecPlayfair(Original, KeyF, KeyS: String): String;
+    Procedure Matrix(N: Integer; Key: String; Var Arr: TPlayfairMatrix);
+  End;
+
+Var
+  Form3: TForm3;
+
+Implementation
+
+{$R *.dfm}
+
+Function TForm3.EncPlayfair(Original, KeyF, KeyS: String): String;
+Const
+  N = 4;
+Var
+  First, Second, Alphabet: TPlayfairMatrix;
+  Temp: String;
+  I, J, Count, K: Integer;
+  IndIF, IndJF, IndIS, IndJS: Integer;
+  Who: Boolean;
+Begin
+  Original := AnsiUpperCase(Original);
+  KeyF := AnsiUpperCase(KeyF);
+  KeyS := AnsiUpperCase(KeyS);
+  Original := StringReplace(Original, 'I', 'J', [rfReplaceAll]);
+  KeyF := StringReplace(KeyF, 'I', 'J', [rfReplaceAll]);
+  KeyS := StringReplace(KeyS, 'I', 'J', [rfReplaceAll]);
+
+
+  Matrix(N, KeyF, First);
+  Matrix(N, KeyS, Second);
+  Matrix(N, '', Alphabet);
+
+  Count := 0;
+  For I := 1 To Length(Original) Do
+    If (Original[I] >= 'A') And (Original[I] <= 'Z') Then
+      Count := Count + 1;
+
+  If Count Mod 2 = 1 Then
+    Original := Original + 'X';
+
+  K := 1;
+  IndIF := 0;
+  IndJF := 0;
+  IndIF := 0;
+  IndJF := 0;
+  Temp := '';
+  Who := True;
+  While K <= Length(Original) Do
+  Begin
+    If (Original[K] >= 'A') And (Original[K] <= 'Z') Then
+    Begin
+      For I := 0 To N Do
+        For J := 0 To N Do
+          If Who Then
+          Begin
+            If Alphabet[I, J] = Original[K] Then
+            Begin
+              IndIF := I;
+              IndJF := J;
+              Who := False;
+            End;
+          End
+          Else
+            If Alphabet[I, J] = Original[K] Then
+            Begin
+              IndIS := I;
+              IndJS := J;
+              Who := True;
+            End;
+
+      If Who Then
+        Temp := Temp + First[IndIF, IndJS] + Second[IndIS, IndJF];
+    End
+    Else
+      Temp := Temp + Original[K];
+
+    K := K + 1;
+
+  End;
+
+  Result := Temp;
+
+End;
+
+Procedure TForm3.Matrix(N: Integer; Key: String; Var Arr: TPlayfairMatrix);
+Var
+  Temp, Now: String;
+  I, J, K: Integer;
+Begin
+  Temp := '';
+
+  For I := 1 To Length(Key) Do
+    If (Key[I] >= 'A') And (Key[I] <= 'Z') Then
+      If Pos(Key[I], Temp) = 0 Then
+        Temp := Temp + Key[I];
+
+  For I := 0 To (Ord('Z') - Ord('A')) Do
+  Begin
+    Now := Chr(Ord('A') + I);
+
+    If (Pos(Now, Temp) = 0) And (Now <> 'J') Then
+      Temp := Temp + Now;
+  End;
+
+  K := 1;
+  For I := 0 To N Do
+    For J := 0 To N Do
+    Begin
+      Arr[I, J] := Temp[K];
+      K := K + 1;
+    End;
+End;
+
+Procedure TForm3.Button1Click(Sender: TObject);
+Begin
+  ResEd.Text := EncPlayfair(OrEd.Text, KeyFEd.Text, KeySEd.Text);
+End;
+
+Procedure TForm3.Button2Click(Sender: TObject);
+Begin
+  ResEd.Text := DecPlayfair(OrEd.Text, KeyFEd.Text, KeySEd.Text);
+End;
+
+Function TForm3.DecPlayfair(Original, KeyF, KeyS: String): String;
+Begin
+  Original := AnsiUpperCase(Original);
+  KeyF := AnsiUpperCase(KeyF);
+  KeyS := AnsiUpperCase(KeyS);
+End;
+
+End.

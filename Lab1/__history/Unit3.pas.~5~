@@ -1,0 +1,249 @@
+Unit Unit3;
+
+Interface
+
+Uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  System.IOUtils;
+
+Type
+  TPlayfairMatrix = Array [0 .. 4, 0 .. 4] Of Char;
+
+Type
+  TForm3 = Class(TForm)
+    OrEd: TEdit;
+    KeySecondEd: TEdit;
+    KeyThirdEd: TEdit;
+    ResEd: TEdit;
+    Button1: TButton;
+    Button2: TButton;
+    Button3: TButton;
+    Button4: TButton;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    KeyFirstEd: TEdit;
+    KeyFourthEd: TEdit;
+    Button5: TButton;
+    Procedure Button1Click(Sender: TObject);
+    Procedure Button2Click(Sender: TObject);
+    Procedure Button3Click(Sender: TObject);
+    Procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+  Private
+    { Private declarations }
+  Public
+    Function EncPlayfair(Original, Key1, Key2, Key3, Key4: String): String;
+    Function DecPlayfair(Ciphered, Key1, Key2, Key3, Key4: String): String;
+    Procedure Matrix(Key: String; Var Arr: TPlayfairMatrix);
+  End;
+
+Var
+  Form3: TForm3;
+
+Implementation
+
+{$R *.dfm}
+
+Procedure TForm3.Matrix(Key: String; Var Arr: TPlayfairMatrix);
+Var
+  Temp, Alphabet: String;
+  I, J, K: Integer;
+Begin
+  Temp := '';
+  Key := AnsiUpperCase(Key);
+  Key := StringReplace(Key, 'J', 'I', [RfReplaceAll]);
+
+  For I := 1 To Length(Key) Do
+    If (Key[I] >= 'A') And (Key[I] <= 'Z') Then
+      If Pos(Key[I], Temp) = 0 Then
+        Temp := Temp + Key[I];
+
+  Alphabet := 'ABCDEFGHIKLMNOPQRSTUVWXYZ';
+  For I := 1 To Length(Alphabet) Do
+    If Pos(Alphabet[I], Temp) = 0 Then
+      Temp := Temp + Alphabet[I];
+
+  K := 1;
+  For I := 0 To 4 Do
+    For J := 0 To 4 Do
+    Begin
+      Arr[I, J] := Temp[K];
+      Inc(K);
+    End;
+End;
+
+Function TForm3.EncPlayfair(Original, Key1, Key2, Key3, Key4: String): String;
+Var
+  First, Second, Alphabet: TPlayfairMatrix;
+  OnlyLetters, EncryptedPart: String;
+  I, J, K: Integer;
+  R1, C1, R2, C2: Integer;
+Begin
+  Original := StringReplace(AnsiUpperCase(Original), 'J', 'I', [RfReplaceAll]);
+  Matrix(Key1, First);
+  Matrix(Key2, First);
+  Matrix(Key3, Second);
+  Matrix(Key4, First);
+  Matrix('', Alphabet);
+
+  OnlyLetters := '';
+  For I := 1 To Length(Original) Do
+    If (Original[I] >= 'A') And (Original[I] <= 'Z') Then
+      OnlyLetters := OnlyLetters + Original[I];
+
+  If (Length(OnlyLetters) Mod 2 <> 0) Then
+    OnlyLetters := OnlyLetters + 'X';
+
+  EncryptedPart := '';
+  K := 1;
+  While K < Length(OnlyLetters) Do
+  Begin
+    R1 := 0; C1 := 0; R2 := 0; C2 := 0;
+    For I := 0 To 4 Do
+      For J := 0 To 4 Do
+        If Alphabet[I, J] = OnlyLetters[K] Then Begin R1 := I; C1 := J; End;
+
+    For I := 0 To 4 Do
+      For J := 0 To 4 Do
+        If Alphabet[I, J] = OnlyLetters[K+1] Then Begin R2 := I; C2 := J; End;
+
+    EncryptedPart := EncryptedPart + First[R1, C2] + Second[R2, C1];
+    K := K + 2;
+  End;
+
+  Result := '';
+  K := 1;
+  For I := 1 To Length(Original) Do
+  Begin
+    If (Original[I] >= 'A') And (Original[I] <= 'Z') Then
+    Begin
+      If K <= Length(EncryptedPart) Then
+      Begin
+        Result := Result + EncryptedPart[K];
+        Inc(K);
+      End;
+    End
+    Else
+      Result := Result + Original[I];
+  End;
+
+  While K <= Length(EncryptedPart) Do
+  Begin
+    Result := Result + EncryptedPart[K];
+    Inc(K);
+  End;
+End;
+
+{ Функция дешифрования }
+Function TForm3.DecPlayfair(Ciphered, Key1, Key2, Key3, Key4: String): String;
+Var
+  First, Second, Alphabet: TPlayfairMatrix;
+  OnlyLetters, DecryptedPart: String;
+  I, J, K: Integer;
+  R1, C1, R2, C2: Integer;
+Begin
+  Ciphered := AnsiUpperCase(Ciphered);
+  Matrix(Key1, First);
+  Matrix(Key2, First);
+  Matrix(Key3, Second);
+  Matrix(Key4, First);
+  Matrix('', Alphabet);
+
+  OnlyLetters := '';
+  For I := 1 To Length(Ciphered) Do
+    If (Ciphered[I] >= 'A') And (Ciphered[I] <= 'Z') Then
+      OnlyLetters := OnlyLetters + Ciphered[I];
+
+  // В дешифровании биграммы всегда четные (X уже добавлен при шифровании)
+  DecryptedPart := '';
+  K := 1;
+  While K < Length(OnlyLetters) Do
+  Begin
+    R1 := 0; C1 := 0; R2 := 0; C2 := 0;
+
+    // Ищем ПЕРВУЮ букву биграммы в ПЕРВОЙ ключевой матрице
+    For I := 0 To 4 Do
+      For J := 0 To 4 Do
+        If First[I, J] = OnlyLetters[K] Then Begin R1 := I; C1 := J; End;
+
+    // Ищем ВТОРУЮ букву биграммы во ВТОРОЙ ключевой матрице
+    For I := 0 To 4 Do
+      For J := 0 To 4 Do
+        If Second[I, J] = OnlyLetters[K+1] Then Begin R2 := I; C2 := J; End;
+
+    // Результат берем из алфавитной матрицы:
+    // Буква 1: строка из Key1, столбец из Key2
+    // Буква 2: строка из Key2, столбец из Key1
+    DecryptedPart := DecryptedPart + Alphabet[R1, C2] + Alphabet[R2, C1];
+    K := K + 2;
+  End;
+
+  // Собираем обратно с пробелами
+  Result := '';
+  K := 1;
+  For I := 1 To Length(Ciphered) Do
+  Begin
+    If (Ciphered[I] >= 'A') And (Ciphered[I] <= 'Z') Then
+    Begin
+      If K <= Length(DecryptedPart) Then
+      Begin
+        Result := Result + DecryptedPart[K];
+        Inc(K);
+      End;
+    End
+    Else
+      Result := Result + Ciphered[I];
+  End;
+
+  // Добавляем хвост, если есть
+  While K <= Length(DecryptedPart) Do
+  Begin
+    Result := Result + DecryptedPart[K];
+    Inc(K);
+  End;
+End;
+
+Procedure TForm3.Button1Click(Sender: TObject);
+Begin
+  ResEd.Text := EncPlayfair(OrEd.Text, KeyFirstEd.Text, KeySecondEd.Text, KeyThirdEd.Text, KeyFirstEd.Text);
+End;
+
+Procedure TForm3.Button2Click(Sender: TObject);
+Begin
+  ResEd.Text := DecPlayfair(OrEd.Text, KeyFirstEd.Text, KeySecondEd.Text, KeyThirdEd.Text, KeyFirstEd.Text);
+End;
+
+Procedure TForm3.Button3Click(Sender: TObject);
+Begin
+  OpenDialog1.Filter := 'Текстовые файлы|*.txt|Все файлы|*.*';
+  If OpenDialog1.Execute Then
+  Begin
+    If TFile.Exists(OpenDialog1.FileName) Then
+      OrEd.Text := TFile.ReadAllText(OpenDialog1.FileName, TEncoding.UTF8);
+  End;
+End;
+
+Procedure TForm3.Button4Click(Sender: TObject);
+Begin
+  SaveDialog1.Filter := 'Текстовые файлы|*.txt|Все файлы|*.*';
+  SaveDialog1.DefaultExt := 'txt';
+  SaveDialog1.FileName := 'result.txt';
+  If SaveDialog1.Execute Then
+  Begin
+    TFile.WriteAllText(SaveDialog1.FileName, ResEd.Text, TEncoding.UTF8);
+    ShowMessage('Результат успешно сохранен!');
+  End;
+End;
+
+procedure TForm3.Button5Click(Sender: TObject);
+begin
+  OrEd.Clear;
+  KeySecondEd.Clear;
+  KeyThirdEd.Clear;
+  ResEd.Clear;
+  KeyFirstEd.Clear;
+  KeyFourthEd.Clear;
+end;
+
+End.

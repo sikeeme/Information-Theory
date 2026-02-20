@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.288,C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Unit1.pas=D:\4\ТИ\лаб1\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.852,=C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.111,=D:\4\ТИ\лаб1\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.900,C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Unit2.dfm=D:\4\ТИ\лаб1\Unit2.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.870,=C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.900,C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Unit2.pas=D:\4\ТИ\лаб1\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.173,C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Project1.dproj=D:\4\ТИ\лаб1\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.288,C:\Users\User\OneDrive\Dokumente\Embarcadero\Studio\Projects\Unit1.dfm=D:\4\ТИ\лаб1\Unit1.dfm</Transaction>
+  </Transactions>
+</BorlandProject>
