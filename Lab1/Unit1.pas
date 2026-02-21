@@ -5,15 +5,15 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
-  Unit3; // Unit2 удален, если он не используется
+  Unit3;
 
 type
   TForm1 = class(TForm)
-    Button1: TButton; // Кнопка для Плейфейра
-    Button2: TButton; // Кнопка для Виженера
+    PlayfairBt: TButton;
+    VigenereBt: TButton;
     Label1: TLabel;
-    procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure PlayfairBtClick(Sender: TObject);
+    procedure VigenereBtClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -27,7 +27,7 @@ implementation
 
 {$R *.dfm}
 
-procedure TForm1.Button1Click(Sender: TObject);
+procedure TForm1.PlayfairBtClick(Sender: TObject);
 begin
   Form3.IsVigenere := False;
   Form3.KeySecondEd.Visible := True;
@@ -38,7 +38,7 @@ begin
   Form3.Show;
 end;
 
-procedure TForm1.Button2Click(Sender: TObject);
+procedure TForm1.VigenereBtClick(Sender: TObject);
 begin
   Form3.IsVigenere := True;
   Form3.KeySecondEd.Visible := False;

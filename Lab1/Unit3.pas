@@ -20,12 +20,10 @@ Type
 
 Type
   TForm3 = Class(TForm)
-    OrEd: TEdit;
     KeyFirstEd: TEdit;
     KeySecondEd: TEdit;
     KeyThirdEd: TEdit;
     KeyFourthEd: TEdit;
-    ResEd: TEdit;
     EncryptBt: TButton;
     OpenBt: TButton;
     SaveBt: TButton;
@@ -36,11 +34,14 @@ Type
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    ResM: TMemo;
+    OrM: TMemo;
     Procedure EncryptBtClick(Sender: TObject);
     Procedure DecipherBtClick(Sender: TObject);
     Procedure OpenBtClick(Sender: TObject);
     Procedure SaveBtClick(Sender: TObject);
     Procedure ClearBtClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   Private
     { Private declarations }
@@ -64,19 +65,25 @@ Begin
   Encrypt := True;
 
   If IsVigenere Then
-    ResEd.Text := Vigenere(OrEd.Text, KeyFirstEd.Text)
+    ResM.Text := Vigenere(OrM.Text, KeyFirstEd.Text)
   Else
-    ResEd.Text := Playfair(OrEd.Text, KeyFirstEd.Text, KeySecondEd.Text, KeyThirdEd.Text, KeyFourthEd.Text);
+    ResM.Text := Playfair(OrM.Text, KeyFirstEd.Text, KeySecondEd.Text, KeyThirdEd.Text, KeyFourthEd.Text);
 End;
 
 procedure TForm3.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  OrEd.Clear;
+  OrM.Clear;
   KeyFirstEd.Clear;
   KeySecondEd.Clear;
   KeyThirdEd.Clear;
   KeyFourthEd.Clear;
-  ResEd.Clear;
+  ResM.Clear;
+end;
+
+procedure TForm3.FormCreate(Sender: TObject);
+begin
+  OrM.Clear;
+  ResM.Clear;
 end;
 
 Procedure TForm3.DecipherBtClick(Sender: TObject);
@@ -84,9 +91,9 @@ Begin
   Encrypt := False;
 
   If IsVigenere Then
-    ResEd.Text := Vigenere(OrEd.Text, KeyFirstEd.Text)
+    ResM.Text := Vigenere(OrM.Text, KeyFirstEd.Text)
   Else
-    ResEd.Text := Playfair(OrEd.Text, KeyFirstEd.Text, KeySecondEd.Text, KeyThirdEd.Text, KeyFourthEd.Text);
+    ResM.Text := Playfair(OrM.Text, KeyFirstEd.Text, KeySecondEd.Text, KeyThirdEd.Text, KeyFourthEd.Text);
 End;
 
 Procedure TForm3.Matrix(Key: String; Var Arr: TPlayfairMatrix);
@@ -123,9 +130,10 @@ Function TForm3.Playfair(Original, Key1, Key2, Key3, Key4: String): String;
 Var
   First, Second, Third, Fourth: TPlayfairMatrix;
   OnlyLetters: String;
-  I, J, K: Integer;
+  I, J, Row, Col, K: Integer;
   R1, C1, R2, C2: Integer;
 Begin
+  Result := '';
   Original := StringReplace(AnsiUpperCase(Original), 'J', 'I', [RfReplaceAll]);
 
   If Encrypt Then
@@ -144,40 +152,52 @@ Begin
   End;
 
   OnlyLetters := '';
-
   For I := 1 To Length(Original) Do
-    If (Original[I] >= 'A') And (Original[I] <= 'Z') Then
+    If (Original[I] In ['A'..'Z', ' ', #10, #13]) Then
       OnlyLetters := OnlyLetters + Original[I];
 
-  If (Length(OnlyLetters) Mod 2 <> 0) Then
-    OnlyLetters := OnlyLetters + 'X';
-
   K := 1;
-  While K < Length(OnlyLetters) Do
+  While K <= Length(OnlyLetters) Do
   Begin
-    R1 := 0;
-    C1 := 0;
-    R2 := 0;
-    C2 := 0;
+    If (OnlyLetters[K] >= 'A') And (OnlyLetters[K] <= 'Z') Then
+    Begin
+      J := K + 1;
+      While (J <= Length(OnlyLetters)) And Not (OnlyLetters[J] In ['A'..'Z']) Do
+        Inc(J);
 
-    For I := 0 To 4 Do
-      For J := 0 To 4 Do
-        If First[I, J] = OnlyLetters[K] Then
-        Begin
-          R1 := I;
-          C1 := J;
-        End;
+      If J > Length(OnlyLetters) Then
+      Begin
+        OnlyLetters := OnlyLetters + 'X';
+        J := Length(OnlyLetters);
+      End;
 
-    For I := 0 To 4 Do
-      For J := 0 To 4 Do
-        If Fourth[I, J] = OnlyLetters[K + 1] Then
-        Begin
-          R2 := I;
-          C2 := J;
-        End;
+      R1 := 0; C1 := 0; R2 := 0; C2 := 0;
 
-    Result := Result + Second[R1, C2] + Third[R2, C1];
-    K := K + 2;
+      For Row := 0 To 4 Do
+        For Col := 0 To 4 Do
+          If First[Row, Col] = OnlyLetters[K] Then
+          Begin
+            R1 := Row;
+            C1 := Col;
+          End;
+
+      For Row := 0 To 4 Do
+        For Col := 0 To 4 Do
+          If Fourth[Row, Col] = OnlyLetters[J] Then
+          Begin
+            R2 := Row;
+            C2 := Col;
+          End;
+
+      Result := Result + Second[R1, C2] + Third[R2, C1];
+
+      K := J + 1;
+    End
+    Else
+    Begin
+      Result := Result + OnlyLetters[K];
+      Inc(K);
+    End;
   End;
 End;
 
@@ -194,12 +214,14 @@ Begin
   count := 0;
   temp := '';
 
-  for i := 1 to Length(Original) do
-    if (Pos(Original[I], RussianAlphabet) > 0)then
-      temp := temp + Original[I];
+    for i := 1 to Length(Original) Do
+      If (Pos(Original[I], RussianAlphabet) > 0) Or (Original[I] = #10) Or
+          (Original[I] = #13) Or
+          (Original[I] = ' ') Then
+        Temp := Temp + Original[I];
 
-  for i := 1 to Length(Key) do
-    if pos(key[i], RussianAlphabet) > 0 then
+    For I := 1 To Length(Key) Do
+      If Pos(Key[i], RussianAlphabet) > 0 then
       Inc(count);
 
   if count = 0 then
@@ -207,6 +229,7 @@ Begin
 
   J := 1;
   For I := 1 To Length(temp) Do
+  if Pos(temp[I], RussianAlphabet) > 0 then
   Begin
       While Pos(Key[J], RussianAlphabet) = 0 Do
         J := (J Mod Length(Key)) + 1;
@@ -221,32 +244,34 @@ Begin
 
       Result := Result + RussianAlphabet[CharNew];
       J := (J Mod Length(Key)) + 1;
-  End;
+  End
+  else
+    Result := Result + temp[i];
 End;
 
 Procedure TForm3.OpenBtClick(Sender: TObject);
 Begin
   If OpenDialog1.Execute Then
-    OrEd.Text := TFile.ReadAllText(OpenDialog1.FileName, TEncoding.UTF8);
+    OrM.Text := TFile.ReadAllText(OpenDialog1.FileName, TEncoding.UTF8);
 End;
 
 Procedure TForm3.SaveBtClick(Sender: TObject);
 Begin
   If SaveDialog1.Execute Then
   Begin
-    TFile.WriteAllText(SaveDialog1.FileName, ResEd.Text, TEncoding.UTF8);
+    TFile.WriteAllText(SaveDialog1.FileName, ResM.Text, TEncoding.UTF8);
     ShowMessage('Сохранено!');
   End;
 End;
 
 Procedure TForm3.ClearBtClick(Sender: TObject);
 Begin
-  OrEd.Clear;
+  OrM.Clear;
   KeyFirstEd.Clear;
   KeySecondEd.Clear;
   KeyThirdEd.Clear;
   KeyFourthEd.Clear;
-  ResEd.Clear;
+  ResM.Clear;
 End;
 
 End.

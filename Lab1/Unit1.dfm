@@ -26,7 +26,7 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
   end
-  object Button1: TButton
+  object PlayfairBt: TButton
     Left = 32
     Top = 176
     Width = 233
@@ -39,9 +39,9 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     TabOrder = 0
-    OnClick = Button1Click
+    OnClick = PlayfairBtClick
   end
-  object Button2: TButton
+  object VigenereBt: TButton
     Left = 344
     Top = 176
     Width = 233
@@ -54,6 +54,6 @@ object Form1: TForm1
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    OnClick = Button2Click
+    OnClick = VigenereBtClick
   end
 end

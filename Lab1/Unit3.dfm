@@ -4,8 +4,8 @@ object Form3: TForm3
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'Form3'
-  ClientHeight = 413
-  ClientWidth = 672
+  ClientHeight = 477
+  ClientWidth = 673
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -13,6 +13,7 @@ object Form3: TForm3
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnClose = FormClose
+  OnCreate = FormCreate
   TextHeight = 15
   object Label1: TLabel
     Left = 40
@@ -42,7 +43,7 @@ object Form3: TForm3
   end
   object Label3: TLabel
     Left = 24
-    Top = 150
+    Top = 222
     Width = 51
     Height = 25
     Caption = #1050#1083#1102#1095':'
@@ -54,7 +55,7 @@ object Form3: TForm3
     ParentFont = False
   end
   object Label4: TLabel
-    Left = 352
+    Left = 360
     Top = 209
     Width = 88
     Height = 25
@@ -66,9 +67,9 @@ object Form3: TForm3
     Font.Style = []
     ParentFont = False
   end
-  object OrEd: TEdit
+  object KeySecondEd: TEdit
     Left = 16
-    Top = 111
+    Top = 312
     Width = 305
     Height = 33
     Font.Charset = DEFAULT_CHARSET
@@ -78,10 +79,11 @@ object Form3: TForm3
     Font.Style = []
     ParentFont = False
     TabOrder = 0
+    TextHint = #1050#1083#1102#1095' 2'
   end
-  object KeySecondEd: TEdit
+  object KeyThirdEd: TEdit
     Left = 16
-    Top = 240
+    Top = 368
     Width = 305
     Height = 33
     Font.Charset = DEFAULT_CHARSET
@@ -91,34 +93,7 @@ object Form3: TForm3
     Font.Style = []
     ParentFont = False
     TabOrder = 1
-    TextHint = #1050#1083#1102#1095' 2'
-  end
-  object KeyThirdEd: TEdit
-    Left = 16
-    Top = 296
-    Width = 305
-    Height = 33
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -19
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 2
     TextHint = #1050#1083#1102#1095' 3'
-  end
-  object ResEd: TEdit
-    Left = 352
-    Top = 240
-    Width = 297
-    Height = 33
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -19
-    Font.Name = 'Segoe UI'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 3
   end
   object EncryptBt: TButton
     Left = 352
@@ -132,7 +107,7 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 4
+    TabOrder = 2
     OnClick = EncryptBtClick
   end
   object DecipherBt: TButton
@@ -147,12 +122,12 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 5
+    TabOrder = 3
     OnClick = DecipherBtClick
   end
   object KeyFirstEd: TEdit
     Left = 16
-    Top = 184
+    Top = 256
     Width = 305
     Height = 33
     Font.Charset = DEFAULT_CHARSET
@@ -161,12 +136,12 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 6
+    TabOrder = 4
     TextHint = #1050#1083#1102#1095' 1'
   end
   object KeyFourthEd: TEdit
     Left = 16
-    Top = 352
+    Top = 424
     Width = 305
     Height = 33
     Font.Charset = DEFAULT_CHARSET
@@ -175,7 +150,7 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 7
+    TabOrder = 5
     TextHint = #1050#1083#1102#1095' 4'
   end
   object OpenBt: TButton
@@ -190,12 +165,12 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 8
+    TabOrder = 6
     OnClick = OpenBtClick
   end
   object SaveBt: TButton
     Left = 352
-    Top = 296
+    Top = 367
     Width = 297
     Height = 33
     Caption = #1057#1086#1093#1088#1072#1085#1080#1090#1100' '#1088#1077#1079#1091#1083#1100#1090#1072#1090' '#1074' '#1092#1072#1081#1083
@@ -205,12 +180,12 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 9
+    TabOrder = 7
     OnClick = SaveBtClick
   end
   object ClearBt: TButton
     Left = 352
-    Top = 352
+    Top = 423
     Width = 297
     Height = 33
     Caption = #1054#1095#1080#1089#1090#1080#1090#1100
@@ -220,8 +195,38 @@ object Form3: TForm3
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    TabOrder = 10
+    TabOrder = 8
     OnClick = ClearBtClick
+  end
+  object ResM: TMemo
+    Left = 352
+    Top = 240
+    Width = 297
+    Height = 105
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    Lines.Strings = (
+      'ResM')
+    ParentFont = False
+    TabOrder = 9
+  end
+  object OrM: TMemo
+    Left = 16
+    Top = 111
+    Width = 305
+    Height = 105
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    Lines.Strings = (
+      'OrM')
+    ParentFont = False
+    TabOrder = 10
   end
   object OpenDialog1: TOpenDialog
     Left = 536
