@@ -15,18 +15,27 @@ type
     KeyEd: TEdit;
     LoadBtn: TButton;
     ResKeyM: TMemo;
+    OpenDialog: TOpenDialog;
+    SaveBtn: TButton;
     procedure FormCreate(Sender: TObject);
     procedure ClearBtnClick(Sender: TObject);
     procedure LoadBtnClick(Sender: TObject);
     procedure AlgoritmBtnClick(Sender: TObject);
     procedure KeyEdKeyPress(Sender: TObject; var Key: Char);
+    procedure SaveBtnClick(Sender: TObject);
   private
     { Private declarations }
     FFileBinaryData: string;
-    FFileSize: Int64; // Добавляем поле для хранения размера файла
+    FFileSize: Int64;
+    FKey: string;
+    FSeed: string;
+    FCipher: string;
+    FFileExt: string;
     procedure FileToBinaryString(const FileName: string);
     function GenerateLFSRKey(const InitialKey: string; RequiredBits: Int64): string;
     procedure XorWithKey(const KeyStr: string);
+    procedure ClearFields;
+    function FormatWithSpaces(const BinStr: string): string;
   public
     { Public declarations }
   end;
@@ -42,53 +51,65 @@ uses
   System.IOUtils, System.Math, System.StrUtils;
 
 function IntToBin(Value: Byte; Digits: Integer): string; forward;
-function FormatBinaryWithEllipsis(const BinaryStr: string; TotalBits: Int64): string; forward;
 function BinToInt(const BinStr: string): Integer; forward;
+
+function TForm1.FormatWithSpaces(const BinStr: string): string;
+var
+  i: Integer;
+  StringBuilder: TStringBuilder;
+begin
+  StringBuilder := TStringBuilder.Create;
+  try
+    for i := 1 to Length(BinStr) do
+    begin
+      StringBuilder.Append(BinStr[i]);
+      if (i mod 8 = 0) and (i < Length(BinStr)) then
+        StringBuilder.Append(' ');
+    end;
+    Result := StringBuilder.ToString;
+  finally
+    StringBuilder.Free;
+  end;
+end;
+
+procedure TForm1.ClearFields;
+begin
+  FileM.Lines.Text := '';
+  CipherM.Lines.Text := '';
+  ResKeyM.Lines.Text := '';
+  KeyEd.Text := '';
+  FCipher := '';
+  FKey := '';
+  FSeed := '';
+  FFileBinaryData := '';
+  FFileSize := 0;
+  FFileExt := '';
+end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  FileM.Clear;
-  CipherM.Clear;
-  ResKeyM.Clear;
-  KeyEd.Clear;
-  AlgoritmBtn.Caption := 'Сгенерировать ключ и зашифровать';
-  FFileBinaryData := '';
-  FFileSize := 0;
-
+  ClearFields;
   // Запрещаем ручной ввод в Memo
   FileM.ReadOnly := True;
   CipherM.ReadOnly := True;
   ResKeyM.ReadOnly := True;
-
   // Ограничиваем длину ввода в KeyEd до 30 символов
   KeyEd.MaxLength := 30;
+  AlgoritmBtn.Caption := 'Сгенерировать ключ и зашифровать';
 end;
 
 procedure TForm1.ClearBtnClick(Sender: TObject);
 begin
-  FileM.Clear;
-  CipherM.Clear;
-  ResKeyM.Clear;
-  KeyEd.Clear;
-  FFileBinaryData := '';
-  FFileSize := 0;
+  ClearFields;
 end;
 
 procedure TForm1.KeyEdKeyPress(Sender: TObject; var Key: Char);
 begin
-  // Разрешаем только цифры 0 и 1, а также управляющие клавиши (Backspace, Delete и т.д.)
-  if not (Key in ['0', '1', #8, #13, #3, #22, #24]) then
-  begin
-    Key := #0; // Отменяем ввод
-    MessageBeep(0); // Звуковой сигнал
-  end;
-
-  // Дополнительно можно ограничить вставку через Ctrl+V
-  if (Key = #22) then // Ctrl+V
+  // Фильтруем ввод, оставляя только 0 и 1 и Backspace
+  if not (Key in ['0', '1', #8]) then
   begin
     Key := #0;
     MessageBeep(0);
-    ShowMessage('Вставка запрещена. Вводите только 0 и 1 с клавиатуры.');
   end;
 end;
 
@@ -100,11 +121,8 @@ var
   B: Byte;
   BinaryStr: string;
   TotalBytes: Int64;
+  Temp: TStringBuilder;
 begin
-  FileM.Clear;
-  FFileBinaryData := '';
-  FFileSize := 0;
-
   if not FileExists(FileName) then
   begin
     ShowMessage('Файл не найден!');
@@ -112,20 +130,17 @@ begin
   end;
 
   try
-    // Получаем размер файла
     TotalBytes := TFile.GetSize(FileName);
-    FFileSize := TotalBytes; // Сохраняем размер файла
+    FFileSize := TotalBytes;
+    FFileExt := ExtractFileExt(FileName);
 
-    // Создаем файловый поток для чтения файла
     FileStream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyWrite);
     try
       MemoryStream := TMemoryStream.Create;
       try
-        // Копируем содержимое файла в MemoryStream
         MemoryStream.CopyFrom(FileStream, FileStream.Size);
         MemoryStream.Position := 0;
 
-        // Преобразуем каждый байт в двоичный вид
         BinaryStr := '';
         for I := 0 to MemoryStream.Size - 1 do
         begin
@@ -133,15 +148,22 @@ begin
           BinaryStr := BinaryStr + IntToBin(B, 8);
         end;
 
-        // Сохраняем бинарные данные для дальнейшего использования
         FFileBinaryData := BinaryStr;
 
-        // Добавляем информацию о файле
-        FileM.Lines.Add('Имя файла: ' + ExtractFileName(FileName));
-        FileM.Lines.Add('Размер: ' + IntToStr(TotalBytes) + ' байт');
-        FileM.Lines.Add('Бинарное представление файла:');
-        FileM.Lines.Add(FormatBinaryWithEllipsis(BinaryStr, TotalBytes * 8));
-
+        if TotalBytes * 8 > 160 then
+        begin
+          Temp := TStringBuilder.Create;
+          try
+            Temp.AppendLine(FormatWithSpaces(Copy(BinaryStr, 1, 80)));
+            Temp.AppendLine('...');
+            Temp.Append(FormatWithSpaces(Copy(BinaryStr, TotalBytes * 8 - 79, 80)));
+            FileM.Lines.Text := Temp.ToString;
+          finally
+            Temp.Free;
+          end;
+        end
+        else
+          FileM.Lines.Text := FormatWithSpaces(BinaryStr);
       finally
         MemoryStream.Free;
       end;
@@ -150,7 +172,6 @@ begin
     end;
 
     FileM.SelStart := 0;
-
   except
     on E: Exception do
       ShowMessage('Ошибка при чтении файла: ' + E.Message);
@@ -158,21 +179,85 @@ begin
 end;
 
 procedure TForm1.LoadBtnClick(Sender: TObject);
-var
-  OpenDialog: TOpenDialog;
 begin
-  OpenDialog := TOpenDialog.Create(Self);
-  try
-    OpenDialog.Title := 'Выберите файл для загрузки';
-    OpenDialog.Filter := 'Все файлы|*.*';
-    OpenDialog.Options := [ofFileMustExist, ofHideReadOnly];
+  if OpenDialog.Execute then
+  begin
+    ClearFields;
+    FileToBinaryString(OpenDialog.FileName);
+  end;
+end;
 
-    if OpenDialog.Execute then
+function BinaryStringToBytes(const BinStr: string): TBytes;
+var
+  i: Integer;
+  b: Byte;
+  len: Integer;
+begin
+  len := (Length(BinStr) + 7) div 8;
+  SetLength(Result, len);
+
+  for i := 0 to len - 1 do
+  begin
+    b := 0;
+    if (i*8 + 1) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 1, 1), 0) shl 7);
+    if (i*8 + 2) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 2, 1), 0) shl 6);
+    if (i*8 + 3) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 3, 1), 0) shl 5);
+    if (i*8 + 4) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 4, 1), 0) shl 4);
+    if (i*8 + 5) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 5, 1), 0) shl 3);
+    if (i*8 + 6) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 6, 1), 0) shl 2);
+    if (i*8 + 7) <= Length(BinStr) then b := b or (StrToIntDef(Copy(BinStr, i*8 + 7, 1), 0) shl 1);
+    if (i*8 + 8) <= Length(BinStr) then b := b or  StrToIntDef(Copy(BinStr, i*8 + 8, 1), 0);
+
+    Result[i] := b;
+  end;
+end;
+
+procedure TForm1.SaveBtnClick(Sender: TObject);
+var
+  SaveDialog: TSaveDialog;
+  Bytes: TBytes;
+  FileStream: TFileStream;
+begin
+  if FCipher = '' then
+  begin
+    ShowMessage('Нет зашифрованных данных. Сначала выполните шифрование.');
+    Exit;
+  end;
+
+  if FFileExt = '' then
+  begin
+    ShowMessage('Не определено расширение исходного файла.');
+    Exit;
+  end;
+
+  SaveDialog := TSaveDialog.Create(nil);
+  try
+    SaveDialog.Title := 'Сохранить зашифрованный файл';
+    SaveDialog.Filter := 'Исходный тип (*' + FFileExt + ')|*' + FFileExt + '|Все файлы|*.*';
+    SaveDialog.DefaultExt := Copy(FFileExt, 2, MaxInt); // без точки
+    SaveDialog.FileName := 'encrypted' + FFileExt;
+
+    if SaveDialog.Execute then
     begin
-      FileToBinaryString(OpenDialog.FileName);
+      Bytes := BinaryStringToBytes(FCipher);
+
+      try
+        FileStream := TFileStream.Create(SaveDialog.FileName, fmCreate);
+        try
+          if Length(Bytes) > 0 then
+            FileStream.Write(Bytes[0], Length(Bytes));
+        finally
+          FileStream.Free;
+        end;
+
+        ShowMessage('Файл успешно сохранён:' + sLineBreak + SaveDialog.FileName);
+      except
+        on E: Exception do
+          ShowMessage('Ошибка сохранения:' + sLineBreak + E.Message);
+      end;
     end;
   finally
-    OpenDialog.Free;
+    SaveDialog.Free;
   end;
 end;
 
@@ -182,8 +267,8 @@ var
   XorResult: string;
   FileBit, KeyBit, ResultBit: Char;
   TotalBits: Int64;
+  Temp: TStringBuilder;
 begin
-  // Проверяем, что длина ключа совпадает с длиной файла
   if Length(KeyStr) <> Length(FFileBinaryData) then
   begin
     ShowMessage('Ошибка: длина ключа (' + IntToStr(Length(KeyStr)) +
@@ -195,96 +280,92 @@ begin
   TotalBits := Length(FFileBinaryData);
   XorResult := '';
 
-  // Выполняем XOR для каждого бита
   for i := 1 to TotalBits do
   begin
     FileBit := FFileBinaryData[i];
     KeyBit := KeyStr[i];
-
-    // XOR: 1 если биты разные, 0 если одинаковые
     if FileBit = KeyBit then
       ResultBit := '0'
     else
       ResultBit := '1';
-
     XorResult := XorResult + ResultBit;
   end;
 
-  // Выводим результат в CipherM
-  CipherM.Clear;
-  CipherM.Lines.Add('Зашифрованные данные (XOR с ключом):');
-  CipherM.Lines.Add('Размер: ' + IntToStr(TotalBits) + ' бит');
-  CipherM.Lines.Add('');
-  CipherM.Lines.Add(FormatBinaryWithEllipsis(XorResult, TotalBits));
+  FCipher := XorResult;
+
+  if TotalBits > 160 then
+  begin
+    Temp := TStringBuilder.Create;
+    try
+      Temp.AppendLine(FormatWithSpaces(Copy(FCipher, 1, 80)));
+      Temp.AppendLine('...');
+      Temp.Append(FormatWithSpaces(Copy(FCipher, TotalBits - 79, 80)));
+      CipherM.Lines.Text := Temp.ToString;
+    finally
+      Temp.Free;
+    end;
+  end
+  else
+    CipherM.Lines.Text := FormatWithSpaces(FCipher);
 end;
 
 procedure TForm1.AlgoritmBtnClick(Sender: TObject);
 var
-  InitialKey: string;
   RequiredBits: Int64;
   GeneratedKey: string;
-  i: Integer;
+  Temp: TStringBuilder;
 begin
-  // Проверяем, что файл загружен
+  FSeed := Trim(KeyEd.Text);
+
   if FFileBinaryData = '' then
   begin
     ShowMessage('Сначала загрузите файл');
     Exit;
   end;
 
-  // Проверяем, что введен ключ
-  if KeyEd.Text = '' then
+  if FSeed = '' then
   begin
     ShowMessage('Введите начальный ключ (30 бит)');
     Exit;
   end;
 
-  // Проверяем, что ключ состоит только из 0 и 1
-  for i := 1 to Length(KeyEd.Text) do
+  if Length(FSeed) <> 30 then
   begin
-    if not (KeyEd.Text[i] in ['0', '1']) then
-    begin
-      ShowMessage('Ключ должен состоять только из 0 и 1');
-      Exit;
-    end;
-  end;
-
-  // Проверяем длину ключа (должен быть 30 бит)
-  if Length(KeyEd.Text) <> 30 then
-  begin
-    ShowMessage('Ключ должен быть длиной 30 бит');
+    ShowMessage('Ключ должен быть длиной ровно 30 бит (0 и 1)');
     Exit;
   end;
 
-  InitialKey := KeyEd.Text;
-
-  // Используем сохраненный размер файла
   if FFileSize = 0 then
   begin
-    ShowMessage('Ошибка: не удалось определить размер файла');
+    ShowMessage('Ошибка: размер файла не определён');
     Exit;
   end;
 
   RequiredBits := FFileSize * 8;
+  GeneratedKey := GenerateLFSRKey(FSeed, RequiredBits);
+  FKey := GeneratedKey;
 
-  // Генерируем ключ с помощью LFSR
-  GeneratedKey := GenerateLFSRKey(InitialKey, RequiredBits);
+  if RequiredBits > 160 then
+  begin
+    Temp := TStringBuilder.Create;
+    try
+      Temp.AppendLine(FormatWithSpaces(Copy(FKey, 1, 80)));
+      Temp.AppendLine('...');
+      Temp.Append(FormatWithSpaces(Copy(FKey, RequiredBits - 79, 80)));
+      ResKeyM.Lines.Text := Temp.ToString;
+    finally
+      Temp.Free;
+    end;
+  end
+  else
+    ResKeyM.Lines.Text := FormatWithSpaces(FKey);
 
-  // Выводим результат в ResKeyM
-  ResKeyM.Clear;
-  ResKeyM.Lines.Add('Сгенерированный ключ (LFSR, x^30+x^16+x^15+x+1):');
-  ResKeyM.Lines.Add('Размер ключа: ' + IntToStr(RequiredBits) + ' бит');
-  ResKeyM.Lines.Add('');
-  ResKeyM.Lines.Add(FormatBinaryWithEllipsis(GeneratedKey, RequiredBits));
-
-  // Выполняем XOR с каждым элементом ключа и файла
-  XorWithKey(GeneratedKey);
+  XorWithKey(FKey);
 end;
 
-// Функция генерации ключа с помощью LFSR для многочлена x^30+x^16+x^15+x+1
 function TForm1.GenerateLFSRKey(const InitialKey: string; RequiredBits: Int64): string;
 var
-  LFSR: UInt32; // 32-битное число для хранения состояния (используем 30 бит)
+  LFSR: UInt32;
   i: Integer;
   Bit: Integer;
   NewBit: Integer;
@@ -292,27 +373,19 @@ var
 begin
   ResultBuilder := TStringBuilder.Create;
   try
-    // Инициализируем LFSR начальным ключом
     LFSR := BinToInt(InitialKey);
 
-    // Генерируем требуемое количество бит
     for i := 0 to RequiredBits - 1 do
     begin
-      // Сохраняем текущий бит (старший бит 30-битного регистра)
-      // В 30-битном регистре старший бит - это бит 29 (считая с 0)
       Bit := (LFSR shr 29) and 1;
       ResultBuilder.Append(IntToStr(Bit));
 
-      // Вычисляем новый бит для многочлена x^30 + x^16 + x^15 + x + 1
-      // Биты: 30, 16, 15, 1, 0 (в 1-индексации)
-      // В 0-индексации: 29, 15, 14, 0
-      NewBit := ((LFSR shr 29) xor   // x^30
-                 (LFSR shr 15) xor   // x^16
-                 (LFSR shr 14) xor   // x^15
-                 (LFSR shr 0)) and 1; // x^1 и x^0 (последние два члена)
+      NewBit := ((LFSR shr 29) xor
+                 (LFSR shr 15) xor
+                 (LFSR shr 14) xor
+                 (LFSR shr 0)) and 1;
 
-      // Сдвигаем регистр влево и добавляем новый бит в младший разряд
-      LFSR := ((LFSR shl 1) or NewBit) and $3FFFFFFF; // Маска для 30 бит (0x3FFFFFFF)
+      LFSR := ((LFSR shl 1) or NewBit) and $3FFFFFFF; // 30 бит
     end;
 
     Result := ResultBuilder.ToString;
@@ -321,7 +394,6 @@ begin
   end;
 end;
 
-// Реализация функции IntToBin
 function IntToBin(Value: Byte; Digits: Integer): string;
 var
   i: Integer;
@@ -336,7 +408,6 @@ begin
   end;
 end;
 
-// Функция для преобразования бинарной строки в число
 function BinToInt(const BinStr: string): Integer;
 var
   i: Integer;
@@ -347,72 +418,6 @@ begin
     Result := Result shl 1;
     if BinStr[i] = '1' then
       Result := Result or 1;
-  end;
-end;
-
-// Функция для форматирования бинарной строки с троеточием
-function FormatBinaryWithEllipsis(const BinaryStr: string; TotalBits: Int64): string;
-const
-  DISPLAY_BITS = 80; // Изменено с 88 на 80
-var
-  FirstPart, LastPart: string;
-  StringBuilder: TStringBuilder;
-  i: Integer;
-begin
-  // Если строка короткая, показываем целиком
-  if Length(BinaryStr) <= DISPLAY_BITS * 2 then
-  begin
-    StringBuilder := TStringBuilder.Create;
-    try
-      for i := 1 to Length(BinaryStr) do
-      begin
-        StringBuilder.Append(BinaryStr[i]);
-        if (i mod 8 = 0) and (i < Length(BinaryStr)) then
-          StringBuilder.Append(' ');
-      end;
-      Result := StringBuilder.ToString;
-    finally
-      StringBuilder.Free;
-    end;
-    Exit;
-  end;
-
-  // Получаем первые DISPLAY_BITS символов
-  FirstPart := Copy(BinaryStr, 1, DISPLAY_BITS);
-
-  // Получаем последние DISPLAY_BITS символов
-  LastPart := Copy(BinaryStr, Length(BinaryStr) - DISPLAY_BITS + 1, DISPLAY_BITS);
-
-  StringBuilder := TStringBuilder.Create;
-  try
-    // Добавляем первую часть с пробелами
-    for i := 1 to Length(FirstPart) do
-    begin
-      StringBuilder.Append(FirstPart[i]);
-      if (i mod 8 = 0) and (i < Length(FirstPart)) then
-        StringBuilder.Append(' ');
-    end;
-
-    StringBuilder.AppendLine;
-
-    // Добавляем информацию о пропущенных битах
-    StringBuilder.Append('... (');
-    StringBuilder.Append(IntToStr(TotalBits - DISPLAY_BITS * 2));
-    StringBuilder.Append(' бит пропущено) ...');
-
-    StringBuilder.AppendLine;
-
-    // Добавляем последнюю часть с пробелами
-    for i := 1 to Length(LastPart) do
-    begin
-      StringBuilder.Append(LastPart[i]);
-      if (i mod 8 = 0) and (i < Length(LastPart)) then
-        StringBuilder.Append(' ');
-    end;
-
-    Result := StringBuilder.ToString;
-  finally
-    StringBuilder.Free;
   end;
 end;
 

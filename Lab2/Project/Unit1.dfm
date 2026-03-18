@@ -52,7 +52,7 @@ object Form1: TForm1
     Left = 8
     Top = 80
     Width = 657
-    Height = 31
+    Height = 23
     TabOrder = 4
     OnKeyPress = KeyEdKeyPress
   end
@@ -73,5 +73,18 @@ object Form1: TForm1
     Lines.Strings = (
       'ResKeyM')
     TabOrder = 6
+  end
+  object SaveBtn: TButton
+    Left = 568
+    Top = 544
+    Width = 75
+    Height = 25
+    Caption = 'SaveBtn'
+    TabOrder = 7
+    OnClick = SaveBtnClick
+  end
+  object OpenDialog: TOpenDialog
+    Left = 496
+    Top = 488
   end
 end
