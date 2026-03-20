@@ -1,0 +1,89 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 622
+  ClientWidth = 673
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OnCreate = FormCreate
+  TextHeight = 15
+  object CipherM: TMemo
+    Left = 18
+    Top = 312
+    Width = 647
+    Height = 153
+    Lines.Strings = (
+      'Memo1')
+    TabOrder = 0
+  end
+  object FileM: TMemo
+    Left = 8
+    Top = 128
+    Width = 323
+    Height = 153
+    Lines.Strings = (
+      'Memo2')
+    TabOrder = 1
+  end
+  object AlgoritmBtn: TButton
+    Left = 200
+    Top = 512
+    Width = 131
+    Height = 25
+    Caption = #1096#1080#1092#1088#1086#1074#1072#1090#1100
+    TabOrder = 2
+    OnClick = AlgoritmBtnClick
+  end
+  object ClearBtn: TButton
+    Left = 392
+    Top = 552
+    Width = 121
+    Height = 25
+    Caption = #1054#1095#1080#1089#1090#1080#1090#1100
+    TabOrder = 3
+    OnClick = ClearBtnClick
+  end
+  object KeyEd: TEdit
+    Left = 8
+    Top = 80
+    Width = 657
+    Height = 23
+    TabOrder = 4
+    OnKeyPress = KeyEdKeyPress
+  end
+  object LoadBtn: TButton
+    Left = 8
+    Top = 32
+    Width = 217
+    Height = 25
+    Caption = #1042#1099#1073#1077#1088#1080#1090#1077' '#1092#1072#1081#1083
+    TabOrder = 5
+    OnClick = LoadBtnClick
+  end
+  object ResKeyM: TMemo
+    Left = 352
+    Top = 128
+    Width = 313
+    Height = 153
+    Lines.Strings = (
+      'ResKeyM')
+    TabOrder = 6
+  end
+  object SaveBtn: TButton
+    Left = 568
+    Top = 544
+    Width = 75
+    Height = 25
+    Caption = 'SaveBtn'
+    TabOrder = 7
+    OnClick = SaveBtnClick
+  end
+  object OpenDialog: TOpenDialog
+    Left = 464
+  end
+end
