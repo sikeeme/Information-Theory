@@ -13,7 +13,7 @@ Uses
   Vcl.StdCtrls;
 
 Type
-  TForm1 = Class(TForm)
+  TLFSR = Class(TForm)
     CipherM: TMemo;
     FileM: TMemo;
     AlgoritmBtn: TButton;
@@ -48,7 +48,7 @@ Type
   End;
 
 Var
-  Form1: TForm1;
+  LFSR: TLFSR;
 
 Implementation
 
@@ -100,7 +100,7 @@ Begin
   End;
 End;
 
-Procedure TForm1.ClearAll;
+Procedure TLFSR.ClearAll;
 Begin
   FileM.Clear;
   CipherM.Clear;
@@ -113,7 +113,7 @@ Begin
   FFileExt := '';
 End;
 
-Procedure TForm1.FormCreate(Sender: TObject);
+Procedure TLFSR.FormCreate(Sender: TObject);
 Begin
   ClearAll;
   FileM.ReadOnly := True;
@@ -122,18 +122,18 @@ Begin
   KeyEd.MaxLength := 30;
 End;
 
-Procedure TForm1.ClearBtnClick(Sender: TObject);
+Procedure TLFSR.ClearBtnClick(Sender: TObject);
 Begin
   ClearAll;
 End;
 
-Procedure TForm1.KeyEdKeyPress(Sender: TObject; Var Key: Char);
+Procedure TLFSR.KeyEdKeyPress(Sender: TObject; Var Key: Char);
 Begin
-  If Not(Key In ['0', '1', #8]) Then
+  If Not(Key In ['0', '1', #8, #3, #22, #24, #26, #1]) Then
     Key := #0;
 End;
 
-Procedure TForm1.FileToBinary(Const FileName: String);
+Procedure TLFSR.FileToBinary(Const FileName: String);
 Var
   Ms: TMemoryStream;
   I: Integer;
@@ -162,9 +162,9 @@ Begin
       End;
       FFileBinary := S;
 
-      If FFileSize * 8 > 160 Then
-        FileM.Lines.Text := FormatBinWithSpaces(Copy(S, 1, 80)) + SLineBreak + '...' + SLineBreak +
-            FormatBinWithSpaces(Copy(S, Length(S) - 79, 80))
+      If FFileSize * 8 > 288 Then
+        FileM.Lines.Text := FormatBinWithSpaces(Copy(S, 1, 144)) + SLineBreak + '...' + SLineBreak +
+            FormatBinWithSpaces(Copy(S, Length(S) - 143, 144))
       Else
         FileM.Lines.Text := FormatBinWithSpaces(S);
 
@@ -177,7 +177,7 @@ Begin
   End;
 End;
 
-Procedure TForm1.LoadBtnClick(Sender: TObject);
+Procedure TLFSR.LoadBtnClick(Sender: TObject);
 Begin
   If OpenDialog.Execute Then
   Begin
@@ -205,27 +205,31 @@ Begin
     End;
   End;
 End;
-
-Procedure TForm1.SaveBtnClick(Sender: TObject);
+Procedure TLFSR.SaveBtnClick(Sender: TObject);
+Var
+  SaveDlg: TSaveDialog;
 Begin
-  With TSaveDialog.Create(Nil) Do
-    Try
-      Title := 'Сохранить зашифрованный файл';
-      Filter := Format('Исходный тип (*%s)|*%s|Все файлы|*.*', [FFileExt, FFileExt]);
-      DefaultExt := Copy(FFileExt, 2, MaxInt);
-      FileName := 'encrypted' + FFileExt;
+  SaveDlg := TSaveDialog.Create(Nil);
+  Try
+    SaveDlg.Title := 'Сохранить зашифрованный файл';
 
-      If Execute Then
-      Begin
-        TFile.WriteAllBytes(FileName, BinaryToBytes(FCipher));
-        MessageDlg('Сохранено: ' + FileName, MtInformation, [MbOK], 0);
-      End;
-    Finally
-      Free;
+    SaveDlg.Filter := 'Все файлы (*.*)|*.*|Исходный тип (*' + FFileExt + ')|*' + FFileExt;
+    SaveDlg.FilterIndex := 1;
+    SaveDlg.DefaultExt := '';
+
+    SaveDlg.FileName := 'encrypted' + FFileExt;
+
+    If SaveDlg.Execute Then
+    Begin
+      TFile.WriteAllBytes(SaveDlg.FileName, BinaryToBytes(FCipher));
+      MessageDlg('Сохранено: ' + SaveDlg.FileName, MtInformation, [MbOK], 0);
     End;
+  Finally
+    SaveDlg.Free;
+  End;
 End;
 
-Procedure TForm1.XorWithKey(Const KeyStr: String);
+Procedure TLFSR.XorWithKey(Const KeyStr: String);
 Var
   I: Integer;
   Sb: TStringBuilder;
@@ -239,14 +243,14 @@ Begin
     Sb.Free;
   End;
 
-  If Length(FCipher) > 160 Then
-    CipherM.Lines.Text := FormatBinWithSpaces(Copy(FCipher, 1, 80)) + SLineBreak + '...' + SLineBreak +
-        FormatBinWithSpaces(Copy(FCipher, Length(FCipher) - 79, 80))
+  If Length(FCipher) > 288 Then
+    CipherM.Lines.Text := FormatBinWithSpaces(Copy(FCipher, 1, 144)) + SLineBreak + '...' + SLineBreak +
+        FormatBinWithSpaces(Copy(FCipher, Length(FCipher) - 143, 144))
   Else
     CipherM.Lines.Text := FormatBinWithSpaces(FCipher);
 End;
 
-Procedure TForm1.AlgoritmBtnClick(Sender: TObject);
+Procedure TLFSR.AlgoritmBtnClick(Sender: TObject);
 Var
   Seed: String;
   ReqBits: Int64;
@@ -269,9 +273,9 @@ Begin
   Key := GenerateLFSRKey(Seed, ReqBits);
   FGeneratedKey := Key;
 
-  If ReqBits > 160 Then
-    ResKeyM.Lines.Text := FormatBinWithSpaces(Copy(Key, 1, 80)) + SLineBreak + '...' + SLineBreak +
-        FormatBinWithSpaces(Copy(Key, ReqBits - 79, 80))
+  If ReqBits > 288 Then
+    ResKeyM.Lines.Text := FormatBinWithSpaces(Copy(Key, 1, 144)) + SLineBreak + '...' + SLineBreak +
+        FormatBinWithSpaces(Copy(Key, ReqBits - 143, 144))
   Else
     ResKeyM.Lines.Text := FormatBinWithSpaces(Key);
 
@@ -280,7 +284,7 @@ Begin
   SaveBtn.Enabled := True;
 End;
 
-Function TForm1.GenerateLFSRKey(Const Seed: String; BitCount: Int64): String;
+Function TLFSR.GenerateLFSRKey(Const Seed: String; BitCount: Int64): String;
 Var
   Lfsr: UInt32;
   I: Integer;
