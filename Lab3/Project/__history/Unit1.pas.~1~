@@ -1,0 +1,82 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TForm1 = class(TForm)
+    pEd: TEdit;
+    Label1: TLabel;
+    qEd: TEdit;
+    Label2: TLabel;
+    bEd: TEdit;
+    Label3: TLabel;
+    OrigM: TMemo;
+    EncryptBt: TButton;
+    DecryptBt: TButton;
+    ResultM: TMemo;
+    Button4: TButton;
+    OpenBt: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure pEdKeyPress(Sender: TObject; var Key: Char);
+    procedure qEdKeyPress(Sender: TObject; var Key: Char);
+    procedure bEdKeyPress(Sender: TObject; var Key: Char);
+  private
+    procedure Check;  // Сделать методом формы
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.FormCreate(Sender: TObject);
+begin
+  OrigM.Clear;
+  ResultM.Clear;
+end;
+
+procedure TForm1.pEdKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0', '1', #8, #3, #22, #24]) then
+    Key := #0;
+  Check;
+end;
+
+procedure TForm1.qEdKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0', '1', #8, #3, #22, #24]) then
+    Key := #0;
+  Check;
+end;
+
+procedure TForm1.bEdKeyPress(Sender: TObject; var Key: Char);
+begin
+  if not (Key in ['0', '1', #8, #3, #22, #24]) then
+    Key := #0;
+  Check;
+end;
+
+procedure TForm1.Check;
+begin
+  if (pEd.Text <> '') and (bEd.Text <> '') and (qEd.Text <> '') then
+  begin
+    EncryptBt.Enabled := True;
+    DecryptBt.Enabled := True;
+  end
+  else
+  begin
+    EncryptBt.Enabled := False;
+    DecryptBt.Enabled := False;
+  end;
+end;
+
+end.

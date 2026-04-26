@@ -1,0 +1,189 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 613
+  ClientWidth = 624
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  OnCreate = FormCreate
+  TextHeight = 15
+  object Label1: TLabel
+    Left = 440
+    Top = 96
+    Width = 100
+    Height = 30
+    Caption = #1042#1074#1077#1076#1080#1090#1077' p:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 440
+    Top = 172
+    Width = 100
+    Height = 30
+    Caption = #1042#1074#1077#1076#1080#1090#1077' q:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 440
+    Top = 256
+    Width = 100
+    Height = 30
+    Caption = #1042#1074#1077#1076#1080#1090#1077' b:'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 8
+    Top = 61
+    Width = 157
+    Height = 30
+    Caption = #1048#1089#1093#1086#1076#1085#1099#1081' '#1092#1072#1081#1083':'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+  end
+  object Label5: TLabel
+    Left = 8
+    Top = 352
+    Width = 98
+    Height = 30
+    Caption = #1056#1077#1079#1091#1083#1100#1090#1072#1090':'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+  end
+  object pEd: TEdit
+    Left = 440
+    Top = 126
+    Width = 153
+    Height = 33
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 0
+  end
+  object qEd: TEdit
+    Left = 440
+    Top = 208
+    Width = 153
+    Height = 33
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 1
+  end
+  object bEd: TEdit
+    Left = 440
+    Top = 292
+    Width = 153
+    Height = 33
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 2
+  end
+  object OrigM: TMemo
+    Left = 8
+    Top = 97
+    Width = 409
+    Height = 249
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    Lines.Strings = (
+      'OrigM')
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 3
+  end
+  object EncryptBt: TButton
+    Left = 8
+    Top = 8
+    Width = 290
+    Height = 42
+    Caption = #1064#1080#1092#1088#1086#1074#1072#1090#1100
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 4
+    OnClick = EncryptBtClick
+  end
+  object DecryptBt: TButton
+    Left = 312
+    Top = 8
+    Width = 289
+    Height = 42
+    Caption = #1044#1077#1096#1080#1092#1088#1086#1074#1072#1090#1100
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -21
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 5
+    OnClick = DecryptBtClick
+  end
+  object ResultM: TMemo
+    Left = 8
+    Top = 392
+    Width = 593
+    Height = 201
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = []
+    Lines.Strings = (
+      'ResultM')
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 6
+  end
+  object SaveDialog: TSaveDialog
+    Left = 280
+    Top = 576
+  end
+  object OpenDialog: TOpenDialog
+    Left = 56
+    Top = 568
+  end
+end
